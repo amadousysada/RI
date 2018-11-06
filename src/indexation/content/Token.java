@@ -100,7 +100,7 @@ public class Token implements Comparable<Token>
 	public boolean equals(Object o)
 	{	boolean result = false;
 		//TODO méthode à compléter (TP1-ex2)
-		result = this.compareTo((Token)o)==0? true:false;
+		result = (this.compareTo((Token)o)==0);
 		return result;
 	}
 	

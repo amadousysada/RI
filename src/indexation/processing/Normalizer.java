@@ -2,10 +2,15 @@ package indexation.processing;
 
 import indexation.content.Token;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.text.Normalizer.Form;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.TreeSet;
 
 import tools.Configuration;
@@ -45,6 +50,14 @@ public class Normalizer implements Serializable
 	 */
 	public void normalizeTokens(List<Token> tokens)
 	{	//TODO méthode à compléter (TP1-ex7)
+		
+		ListIterator<Token> listIterator = tokens.listIterator();
+		while(listIterator.hasNext()) {
+			
+			Token token = listIterator.next();
+			token.setType(normalizeType(token.getType()));
+			listIterator.set(token);
+		}
 	}
 	
 	/**
@@ -60,6 +73,8 @@ public class Normalizer implements Serializable
 	public String normalizeType(String string)
 	{	String result = null;
 		//TODO méthode à compléter (TP1-ex6)
+		result = java.text.Normalizer.normalize(string.toLowerCase(), Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+		
 		//TODO méthode à modifier  (TP4-ex14)
 		//TODO méthode à modifier  (TP5-ex8)
 		return result;
@@ -132,10 +147,21 @@ public class Normalizer implements Serializable
 	public static void main(String[] args) throws Exception 
 	{	// test de normalizeType
 		//TODO méthode à compléter (TP1-ex6)
-		
+		Normalizer norm = new Normalizer();
+		System.out.println(norm.normalizeType("çéldon"));
 		// test de normalizeTokens
 		//TODO méthode à compléter (TP1-ex7)
-		
+		Tokenizer tokenizer = new Tokenizer();
+		List<Token> tokens = new ArrayList<Token>();
+		File file = new File("../Common/wp/001f1107-8e72-4250-8b83-ef02eeb4d4a4.txt");
+		try {
+			tokenizer.tokenizeDocument(file, 0, tokens);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		norm.normalizeTokens(tokens);
+		System.out.print(tokens);
 		// test de loadStopWords
 		//TODO méthode à compléter (TP5-ex7)
 	}

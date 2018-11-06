@@ -68,6 +68,8 @@ public class IndexEntry implements Serializable, Comparable<IndexEntry>
 	 */
 	public void addPosting(Posting posting)
 	{	postings.add(posting);
+		incrementFrequency();
+		//     ajouter l'incrementation la frequence (appeler incrementFrequency)
 	}
 	
 	////////////////////////////////////////////////////
@@ -101,6 +103,8 @@ public class IndexEntry implements Serializable, Comparable<IndexEntry>
 	public int compareTo(IndexEntry entry)
 	{	int result = 0;
 		//TODO méthode à compléter (TP1-ex9)
+		result = this.term.compareTo(entry.term);
+		
 		return result;
 	}
 	
@@ -111,6 +115,7 @@ public class IndexEntry implements Serializable, Comparable<IndexEntry>
 	public String toString()
 	{	String result = null;
 		//TODO méthode à compléter (TP1-ex9)
+		result = "<"+term+" ["+frequency+"] " + postings+">";
 		return result;
 	}
 	
@@ -118,6 +123,7 @@ public class IndexEntry implements Serializable, Comparable<IndexEntry>
 	public boolean equals(Object o)
 	{	boolean result = false;
 		//TODO méthode à compléter (TP1-ex9)
+		result = (this.compareTo((IndexEntry)o)==0);
 		return result;
 	}
 	
@@ -134,13 +140,30 @@ public class IndexEntry implements Serializable, Comparable<IndexEntry>
 	 * 		Problème quelconque rencontré.
 	 */
 	public static void main(String[] args) throws Exception 
-	{	// test de equals
+	{	
+		IndexEntry ie = new IndexEntry("bateau");
+		IndexEntry ie1 = new IndexEntry("avion");
+		IndexEntry ie2 = new IndexEntry("tgv");
+		ie.frequency=5;
+		ie.postings.add(new Posting(1));
+		ie.postings.add(new Posting(5));
+		ie.postings.add(new Posting(99));
+		ie.postings.add(new Posting(694));
+		ie.postings.add(new Posting(702));
+		// test de equals
 		// TODO méthode à compléter (TP1-ex9)
+		System.out.println(ie.equals(ie1));
+		System.out.println(ie.equals(ie2));
+		System.out.println(ie.equals(ie));
+		
 				
 		// test de compareTo
 		// TODO méthode à compléter (TP1-ex9)
+		System.out.println(ie.compareTo(ie1));
+		System.out.println(ie1.compareTo(ie2));
 				
 		// test de toString
 		// TODO méthode à compléter (TP1-ex9)
+		System.out.println(ie.toString());
 	}
 }

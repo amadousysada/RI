@@ -83,6 +83,16 @@ public class Posting implements Serializable, Comparable<Posting>
 	public int compareTo(Posting posting)
 	{	int result = 0;
 		//TODO méthode à compléter (TP1-ex8)
+		if(this.docId > posting.docId) {
+			result=1;
+		}
+		else if(this.docId == posting.docId){
+			result = 0;
+		}
+		else{
+			result = -1;
+		}
+		
 		return result;
 	}
 	
@@ -94,6 +104,7 @@ public class Posting implements Serializable, Comparable<Posting>
 	{	String result = null;
 		//TODO méthode à compléter (TP1-ex8)
 		//TODO méthode à modifier  (TP6-ex3)
+		result = Integer.toString(this.docId);
 		return result;
 	}
 	
@@ -101,6 +112,8 @@ public class Posting implements Serializable, Comparable<Posting>
 	public boolean equals(Object o)
 	{	boolean result = false;
 		//TODO méthode à compléter (TP1-ex8)
+		result = (this.compareTo((Posting)o)==0);
+		
 		return result;
 	}
 	

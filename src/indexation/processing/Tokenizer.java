@@ -1,6 +1,8 @@
 package indexation.processing;
 
 import indexation.content.Token;
+import tools.Configuration;
+import tools.FileTools;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +44,23 @@ public class Tokenizer implements Serializable
 	public int tokenizeCorpus(List<Token> tokens) throws UnsupportedEncodingException
 	{	int result = 0;
 		//TODO méthode à compléter (TP1-ex5)
+	
+		String corpusPath = FileTools.getCorpusFolder();
+		File file = new File(corpusPath);
+		String[] paths = file.list();
+		Arrays.sort(paths);
+		if(tokens.isEmpty()) {
+			int docId = 0;
+			for (String string : paths) {
+				tokenizeDocument(new File(corpusPath+File.separator+string), docId, tokens);
+				//System.out.println(corpusPath+File.separator+string);
+				docId++;
+			}
+		}
+		result=tokens.size();
+		
 		return result;
+		
 	}
 	
 	/**
@@ -126,22 +144,19 @@ public class Tokenizer implements Serializable
 		// test de tokenizeDocument
 		// TODO méthode à compléter (TP1-ex4)
 		List<Token> tokens = new ArrayList<Token>();
-		File file = new File("../Common/corpus/001f1107-8e72-4250-8b83-ef02eeb4d4a4.txt");
+		File file = new File("../Common/wp/001f1107-8e72-4250-8b83-ef02eeb4d4a4.txt");
 		try {
 			t.tokenizeDocument(file, 0, tokens);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.print("[");
-		for (Token token : tokens) {
-			System.out.println("("+token.getType()+", "+token.getDocId()+"),");
-		}
-		System.out.print("]");
+		System.out.print(tokens+"\n");
 				
 		// test de tokenizeCorpus
 		// TODO méthode à compléter (TP1-ex5)
 		try {
+			Configuration.setCorpusName("wp_test");
 			List<Token> tokens2 = new ArrayList<Token>();
 			System.out.print(t.tokenizeCorpus(tokens2));
 		} catch (UnsupportedEncodingException e) {
