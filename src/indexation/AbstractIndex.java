@@ -20,6 +20,9 @@ public abstract class AbstractIndex implements Serializable
 {	/** Class id (juste pour éviter le warning) */
 	private static final long serialVersionUID = 1L;
 	
+	
+	
+	
 	/**
 	 * Méthode de classe permettant la création
 	 * d'un index prenant la forme d'un fichier inverse.

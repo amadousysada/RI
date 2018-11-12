@@ -6,6 +6,11 @@ import indexation.content.IndexEntry;
 import indexation.content.Posting;
 import indexation.content.Token;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,6 +53,25 @@ public class Builder
 	private int filterTokens(List<Token> tokens)
 	{	int result = 0;
 		//TODO méthode à compléter (TP2-ex1)
+		Iterator<Token> it =tokens.iterator();
+		Token previous = null;
+		while (it.hasNext()) {
+			Token token =it.next();
+			if (previous == null) {
+				previous = token;
+				result++;
+				continue;
+			}
+			if(token.equals(previous)) {
+				it.remove();
+				continue;
+			}
+			
+			result++;
+			previous = token;
+			
+			
+		}
 		return result;
 	}
 	
@@ -129,9 +153,26 @@ public class Builder
 	 * 		Problème quelconque rencontré.
 	 */
 	public static void main(String[] args) throws Exception 
-	{	// test de filterTokens
+	{	
+		Builder bui = new Builder();
+		List<Token> tokens = new ArrayList<Token>();
+		tokens.add(new Token("type1", 1));
+		tokens.add(new Token("type2", 2));
+		tokens.add(new Token("type1", 1));
+		tokens.add(new Token("type1", 3));
+		tokens.add(new Token("type2", 2));
+		tokens.add(new Token("type1", 3));
+		tokens.add(new Token("type1", 1));
+		tokens.add(new Token("type1", 3));
+		tokens.add(new Token("type2", 2));
+		tokens.add(new Token("type1", 3));
+		tokens.add(new Token("type1", 4));
+		// test de filterTokens
 		//TODO méthode à compléter (TP2-ex1)
-		
+		tokens.sort(null);
+		System.out.println(tokens);
+		int i = bui.filterTokens(tokens);
+		System.out.println(i);
 		// test de buildPostings
 		//TODO méthode à compléter (TP2-ex2)
 		

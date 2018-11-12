@@ -83,15 +83,8 @@ public class Posting implements Serializable, Comparable<Posting>
 	public int compareTo(Posting posting)
 	{	int result = 0;
 		//TODO méthode à compléter (TP1-ex8)
-		if(this.docId > posting.docId) {
-			result=1;
-		}
-		else if(this.docId == posting.docId){
-			result = 0;
-		}
-		else{
-			result = -1;
-		}
+	
+		result = this.docId - posting.docId;
 		
 		return result;
 	}

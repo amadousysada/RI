@@ -144,12 +144,11 @@ public class IndexEntry implements Serializable, Comparable<IndexEntry>
 		IndexEntry ie = new IndexEntry("bateau");
 		IndexEntry ie1 = new IndexEntry("avion");
 		IndexEntry ie2 = new IndexEntry("tgv");
-		ie.frequency=5;
-		ie.postings.add(new Posting(1));
-		ie.postings.add(new Posting(5));
-		ie.postings.add(new Posting(99));
-		ie.postings.add(new Posting(694));
-		ie.postings.add(new Posting(702));
+		ie.addPosting(new Posting(1));
+		ie.addPosting(new Posting(5));
+		ie.addPosting(new Posting(99));
+		ie.addPosting(new Posting(694));
+		ie.addPosting(new Posting(702));
 		// test de equals
 		// TODO méthode à compléter (TP1-ex9)
 		System.out.println(ie.equals(ie1));

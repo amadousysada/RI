@@ -73,9 +73,7 @@ public class Token implements Comparable<Token>
 	
 		switch(c) {
 			case 0:
-				if(this.docId < token.docId)  {result = -1;}
-				if(this.docId == token.docId) {result =  0;}
-				if(this.docId > token.docId)  {result =  1;}
+				result = this.docId-token.docId;
 				break;
 		
 			default:
