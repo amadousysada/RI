@@ -2,6 +2,7 @@ package indexation.processing;
 
 import indexation.AbstractIndex;
 import indexation.AbstractIndex.LexiconType;
+import indexation.ArrayIndex;
 import indexation.content.IndexEntry;
 import indexation.content.Posting;
 import indexation.content.Token;
@@ -113,6 +114,19 @@ public class Builder
 	private int buildPostings(List<Token> tokens, AbstractIndex index)
 	{	int result = 0;
 		//TODO méthode à compléter (TP2-ex2)
+		int i = 0;
+		for (Token token : tokens) {
+			IndexEntry ie = new IndexEntry(token.getType());
+			ie.addPosting(new Posting(token.getDocId()));
+			index.addEntry(ie, i);
+			i++;
+		}
+		
+		if (index instanceof ArrayIndex){
+			Arrays.sort(((ArrayIndex) index).getEntries());
+		}
+		result = i;
+		
 		return result;
 	}
 	
@@ -162,20 +176,25 @@ public class Builder
 		tokens.add(new Token("type1", 3));
 		tokens.add(new Token("type2", 2));
 		tokens.add(new Token("type1", 3));
+		tokens.add(new Token("type8", 4));
 		tokens.add(new Token("type1", 1));
 		tokens.add(new Token("type1", 3));
 		tokens.add(new Token("type2", 2));
 		tokens.add(new Token("type1", 3));
 		tokens.add(new Token("type1", 4));
+		
 		// test de filterTokens
 		//TODO méthode à compléter (TP2-ex1)
 		tokens.sort(null);
-		System.out.println(tokens);
+		System.out.println("test de filterTokens");
 		int i = bui.filterTokens(tokens);
-		System.out.println(i);
+		System.out.println(i+"\n");
 		// test de buildPostings
 		//TODO méthode à compléter (TP2-ex2)
-		
+		System.out.println("test de buildPostings");
+		ArrayIndex index = new ArrayIndex(tokens.size());
+		int j = bui.buildPostings(tokens, index);
+		System.out.println("Size of token :"+tokens.size()+" Result: "+j);
 		// test de buildIndex
 		//TODO méthode à compléter (TP2-ex3)
 		
