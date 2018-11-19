@@ -3,6 +3,8 @@ package indexation.processing;
 import indexation.AbstractIndex;
 import indexation.AbstractIndex.LexiconType;
 import indexation.ArrayIndex;
+import indexation.HashIndex;
+import indexation.TreeIndex;
 import indexation.content.IndexEntry;
 import indexation.content.Posting;
 import indexation.content.Token;
@@ -11,9 +13,14 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.rmi.CORBA.Util;
+
+import tools.Configuration;
 
 /**
  * Objet construisant un index prenant 
@@ -36,7 +43,34 @@ public class Builder
 	public AbstractIndex buildIndex(List<Token> tokens, LexiconType lexiconType)
 	{	AbstractIndex result = null;
 		//TODO méthode à compléter (TP2-ex3)
-		//TODO méthode à modifier  (TP2-ex8)
+		System.out.println("Sorting tokens...\n");
+		Collections.sort(tokens);
+		System.out.println(tokens.size()+" tokens sorted\n\n\n");
+		
+		System.out.println("Filtering tokens...");
+		int i = filterTokens(tokens);
+		System.out.println(tokens.size()+ " tokens remaining, corresponding to "+i +" terms\n\n\n");
+		
+		switch (lexiconType) {
+		case ARRAY:
+			result = new ArrayIndex(tokens.size());
+			break;
+		
+		case HASH:
+			result = new HashIndex(tokens.size());
+			break;
+			
+		case TREE:
+			result = new TreeIndex();
+			break;
+
+		default:
+			break;
+		}
+		System.out.println("Building posting lists...\n");
+		int j = buildPostings(tokens, result);
+		System.out.format("%d postings listed, lexicon type=%s%n",j,lexiconType.name());
+		
 		return result;
 	}
 	
@@ -68,7 +102,9 @@ public class Builder
 				continue;
 			}
 			
-			result++;
+			if(!previous.getType().equals(token.getType())){
+				result++;
+			}
 			previous = token;
 			
 			
@@ -186,17 +222,28 @@ public class Builder
 		// test de filterTokens
 		//TODO méthode à compléter (TP2-ex1)
 		tokens.sort(null);
-		System.out.println("test de filterTokens");
+		System.out.println("==========  test de filterTokens  ============\n");
 		int i = bui.filterTokens(tokens);
-		System.out.println(i+"\n");
+		System.out.format("Nombre de Termes: %d%n",i);
+		System.out.println(tokens.size()+"\n");
 		// test de buildPostings
 		//TODO méthode à compléter (TP2-ex2)
-		System.out.println("test de buildPostings");
+		System.out.println("============== test de buildPostings  ==================\n");
 		ArrayIndex index = new ArrayIndex(tokens.size());
 		int j = bui.buildPostings(tokens, index);
-		System.out.println("Size of token :"+tokens.size()+" Result: "+j);
+		System.out.println("Size of token :"+tokens.size()+" Result: "+j+"\n");
+		
 		// test de buildIndex
 		//TODO méthode à compléter (TP2-ex3)
+		System.out.println("==============  test de buildIndex  ================\n");
+		Configuration.setCorpusName("wp_test");
+		List<Token> tokensListe = new ArrayList<Token>();
+		Tokenizer t =new Tokenizer();
+		Normalizer norm = new Normalizer();
+		t.tokenizeCorpus(tokensListe);
+		norm.normalizeTokens(tokensListe);
+		bui.buildIndex(tokensListe, LexiconType.HASH);
+		
 		
 		// test de filterTokens
 		//TODO méthode à compléter (TP6-ex4)

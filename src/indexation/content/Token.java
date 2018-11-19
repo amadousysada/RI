@@ -1,5 +1,8 @@
 package indexation.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Représente un token, i.e. un couple
  * (mot,numéro) de document.
@@ -136,6 +139,5 @@ public class Token implements Comparable<Token>
 		System.out.println(mytoken2.toString());
 		System.out.println(mytoken3.toString());
 		// TODO méthode à compléter (TP1-ex2)
-				
 	}
 }
