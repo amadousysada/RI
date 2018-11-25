@@ -4,8 +4,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import tools.Configuration;
 
 import indexation.content.IndexEntry;
+import indexation.content.Token;
+import indexation.processing.Builder;
 import indexation.processing.Normalizer;
 import indexation.processing.Tokenizer;
 
@@ -42,6 +49,35 @@ public abstract class AbstractIndex implements Serializable
 	public static AbstractIndex indexCorpus(TokenListType tokenListType, LexiconType lexiconType) throws UnsupportedEncodingException, FileNotFoundException
 	{	AbstractIndex result = null;
 		//TODO méthode à compléter (TP2-ex4)
+		Tokenizer tk =new Tokenizer();
+		Normalizer norm = new Normalizer();
+		Builder bd = new Builder();
+		
+		List<Token> tokensListe = null;
+		switch (tokenListType) {
+		case ARRAY:
+			tokensListe = new ArrayList<Token>();
+			break;
+		case LINKED:
+			tokensListe = new LinkedList<Token>();
+			break;
+
+		default:
+			break;
+		}
+		
+		System.out.println("Tokenizing corpus...");
+		int i= tk.tokenizeCorpus(tokensListe);
+		System.out.format("%d tokens were found %n%n", i);
+		
+		System.out.println("Normalizing tokens...");
+		norm.normalizeTokens(tokensListe);
+		System.out.format("%d tokens remaining after normalization %n%n", i);
+		
+		System.out.println("Building Index \n");
+		result = bd.buildIndex(tokensListe, lexiconType);
+		
+		System.out.format("There are %d entries in the index, token list=%s%n",result.getSize(),tokenListType);
 		//TODO méthode à modifier  (TP2-ex8)
 		return result;
 	}
@@ -215,6 +251,9 @@ public abstract class AbstractIndex implements Serializable
 	public static void main(String[] args) throws Exception 
 	{	// test de indexCorpus
 		//TODO méthode à compléter (TP2-ex4)
+		
+		Configuration.setCorpusName("wp_test");
+		AbstractIndex.indexCorpus(TokenListType.LINKED, LexiconType.HASH);
 		
 		// test de write
 		//TODO méthode à compléter (TP2-ex10)

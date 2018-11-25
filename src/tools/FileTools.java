@@ -1,8 +1,16 @@
 package tools;
 
+import indexation.AbstractIndex.LexiconType;
+import indexation.ArrayIndex;
 import indexation.content.Posting;
+import indexation.content.Token;
+import indexation.processing.Builder;
+import indexation.processing.Normalizer;
+import indexation.processing.Tokenizer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import query.DocScore;
@@ -121,6 +129,15 @@ public class FileTools
 	 */
 	public static List<String> getFileNamesFromPostings(List<Posting> postings)
 	{	List<String> result = null;
+		File file = new File(FileTools.getCorpusFolder());
+		String[] paths = file.list();
+		Arrays.sort(paths);
+		result =new ArrayList<String>();
+		for (Posting post : postings) {
+			int index  = post.getDocId();
+			String filename = paths[index];
+			result.add(filename);
+		}
 		//TODO méthode à compléter  (TP2-ex6)
 		return result;
 	}
@@ -170,6 +187,20 @@ public class FileTools
 	public static void main(String[] args) throws Exception 
 	{	// test de getFileNamesFromPostings
 		//TODO méthode à compléter  (TP2-ex6)
+		Configuration.setCorpusName("wp_test");
+		Tokenizer tk = new Tokenizer();
+		List<Token> tokens =new ArrayList<Token>();
+		int i=tk.tokenizeCorpus(tokens);
+		(new Normalizer()).normalizeTokens(tokens);
+		List<Posting> postings=new ArrayList<Posting>();
+		for (Token token : tokens) {
+			postings.add(new Posting(token.getDocId()));
+		}
+		
+		List<String> filenames = FileTools.getFileNamesFromPostings(postings);
+		for (String string : filenames) {
+			System.out.println(string);
+		}
 		
 		// test de getPostingsFromFileNames
 		//TODO méthode à compléter  (TP4-ex1)

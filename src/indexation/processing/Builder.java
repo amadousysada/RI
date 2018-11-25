@@ -43,13 +43,13 @@ public class Builder
 	public AbstractIndex buildIndex(List<Token> tokens, LexiconType lexiconType)
 	{	AbstractIndex result = null;
 		//TODO méthode à compléter (TP2-ex3)
-		System.out.println("Sorting tokens...\n");
+		System.out.println("Sorting tokens...");
 		Collections.sort(tokens);
-		System.out.println(tokens.size()+" tokens sorted\n\n\n");
+		System.out.println(tokens.size()+" tokens sorted\n\n");
 		
 		System.out.println("Filtering tokens...");
 		int i = filterTokens(tokens);
-		System.out.println(tokens.size()+ " tokens remaining, corresponding to "+i +" terms\n\n\n");
+		System.out.println(tokens.size()+ " tokens remaining, corresponding to "+i +" terms\n\n");
 		
 		switch (lexiconType) {
 		case ARRAY:
@@ -67,9 +67,9 @@ public class Builder
 		default:
 			break;
 		}
-		System.out.println("Building posting lists...\n");
+		System.out.println("Building posting lists...");
 		int j = buildPostings(tokens, result);
-		System.out.format("%d postings listed, lexicon type=%s%n",j,lexiconType.name());
+		System.out.format("%d postings listed, lexicon type=%s%n%n",j,lexiconType.name());
 		
 		return result;
 	}
@@ -239,9 +239,7 @@ public class Builder
 		Configuration.setCorpusName("wp_test");
 		List<Token> tokensListe = new ArrayList<Token>();
 		Tokenizer t =new Tokenizer();
-		Normalizer norm = new Normalizer();
 		t.tokenizeCorpus(tokensListe);
-		norm.normalizeTokens(tokensListe);
 		bui.buildIndex(tokensListe, LexiconType.HASH);
 		
 		
