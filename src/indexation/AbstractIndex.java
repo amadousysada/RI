@@ -1,7 +1,12 @@
 package indexation;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -9,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import tools.Configuration;
+import tools.FileTools;
 
 import indexation.content.IndexEntry;
 import indexation.content.Token;
@@ -65,20 +71,29 @@ public abstract class AbstractIndex implements Serializable
 		default:
 			break;
 		}
+		Long start = System.currentTimeMillis();
 		
 		System.out.println("Tokenizing corpus...");
+		Long startTokenizing = System.currentTimeMillis();
 		int i= tk.tokenizeCorpus(tokensListe);
-		System.out.format("%d tokens were found %n%n", i);
+		Long endTokenizing = System.currentTimeMillis();
+		System.out.format("%d tokens were found, duration=%d ms %n%n", i,endTokenizing-startTokenizing);
 		
 		System.out.println("Normalizing tokens...");
+		Long startNormalizing = System.currentTimeMillis();
 		norm.normalizeTokens(tokensListe);
-		System.out.format("%d tokens remaining after normalization %n%n", i);
+		Long endNormalizing = System.currentTimeMillis();
+		System.out.format("%d tokens remaining after normalization, duration=%d ms %n%n", i,endNormalizing-startNormalizing);
 		
 		System.out.println("Building Index \n");
+		Long startBuilding = System.currentTimeMillis();
 		result = bd.buildIndex(tokensListe, lexiconType);
+		Long endBuilding = System.currentTimeMillis();
+		System.out.format("There are %d entries in the index, token list=%s, duration=%d ms%n",result.getSize(),tokenListType,endBuilding-startBuilding);
 		
-		System.out.format("There are %d entries in the index, token list=%s%n",result.getSize(),tokenListType);
 		//TODO méthode à modifier  (TP2-ex8)
+		Long end = System.currentTimeMillis();
+		System.out.format("Total duration= %d ms %n%n",end-start);
 		return result;
 	}
 	
@@ -213,6 +228,13 @@ public abstract class AbstractIndex implements Serializable
 	public static AbstractIndex read() throws IOException, ClassNotFoundException
 	{	AbstractIndex result = null;
 		//TODO méthode à compléter (TP2-ex11)
+		String fileName = FileTools.getIndexFile();
+		File file = new File(fileName);
+		FileInputStream fis = new FileInputStream(file);
+		ObjectInputStream ois = new ObjectInputStream(fis);
+		
+		result = (AbstractIndex) ois.readObject();
+		ois.close();
 		return result;
 	}
 	
@@ -226,6 +248,17 @@ public abstract class AbstractIndex implements Serializable
 	 */
 	public void write() throws IOException
 	{	//TODO méthode à compléter (TP2-ex10)
+		String filename = FileTools.getIndexFile();
+		File file = new File(filename);
+		FileOutputStream fos = new FileOutputStream(file);
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		
+		System.out.println("Writing the index ...");
+		Long start = System.currentTimeMillis();
+		oos.writeObject(this);
+		Long end = System.currentTimeMillis();
+		System.out.format("Index written, duration=%d ms", end-start);
+		oos.close();
 	}
 
 	////////////////////////////////////////////////////
@@ -253,12 +286,15 @@ public abstract class AbstractIndex implements Serializable
 		//TODO méthode à compléter (TP2-ex4)
 		
 		Configuration.setCorpusName("wp_test");
-		AbstractIndex.indexCorpus(TokenListType.LINKED, LexiconType.HASH);
+		AbstractIndex a =AbstractIndex.indexCorpus(TokenListType.LINKED, LexiconType.ARRAY);
 		
 		// test de write
 		//TODO méthode à compléter (TP2-ex10)
+		a.write();
 		
 		// test de read
 		//TODO méthode à compléter (TP2-ex11)
+		a= AbstractIndex.read();
+		a.print();
 	}
 }

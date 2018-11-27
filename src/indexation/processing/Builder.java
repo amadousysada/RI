@@ -9,16 +9,12 @@ import indexation.content.IndexEntry;
 import indexation.content.Posting;
 import indexation.content.Token;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.rmi.CORBA.Util;
 
 import tools.Configuration;
 
@@ -42,14 +38,20 @@ public class Builder
 	 */
 	public AbstractIndex buildIndex(List<Token> tokens, LexiconType lexiconType)
 	{	AbstractIndex result = null;
+		Long start , end=null;
 		//TODO méthode à compléter (TP2-ex3)
-		System.out.println("Sorting tokens...");
-		Collections.sort(tokens);
-		System.out.println(tokens.size()+" tokens sorted\n\n");
 		
-		System.out.println("Filtering tokens...");
+		System.out.println("\tSorting tokens...");
+		start = System.currentTimeMillis();
+		Collections.sort(tokens);
+		end = System.currentTimeMillis();
+		System.out.println("\t"+tokens.size()+" tokens sorted, duration="+(end-start)+" ms\n\n");
+		
+		System.out.println("\tFiltering tokens...");
+		start = System.currentTimeMillis();
 		int i = filterTokens(tokens);
-		System.out.println(tokens.size()+ " tokens remaining, corresponding to "+i +" terms\n\n");
+		end = System.currentTimeMillis();
+		System.out.println("\t"+tokens.size()+ " tokens remaining, corresponding to "+i +" terms, duration="+(end-start)+" ms\n\n");
 		
 		switch (lexiconType) {
 		case ARRAY:
@@ -67,9 +69,12 @@ public class Builder
 		default:
 			break;
 		}
-		System.out.println("Building posting lists...");
+		
+		System.out.println("\tBuilding posting lists...");
+		start = System.currentTimeMillis();
 		int j = buildPostings(tokens, result);
-		System.out.format("%d postings listed, lexicon type=%s%n%n",j,lexiconType.name());
+		end = System.currentTimeMillis();
+		System.out.format("\t%d postings listed, lexicon type=%s, duration=%d ms%n%n",j,lexiconType.name(),(end-start));
 		
 		return result;
 	}

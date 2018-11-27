@@ -53,8 +53,11 @@ public class Test1
 	 */
 	private static void testIndexation() throws IOException
 	{	//TODO méthode à compléter (TP2-ex5)
-		(AbstractIndex.indexCorpus(TokenListType.LINKED, LexiconType.HASH)).print();
+		AbstractIndex a = (AbstractIndex.indexCorpus(TokenListType.LINKED, LexiconType.ARRAY));
+		a.print();
+		
 		//TODO méthode à compléter (TP2-ex10)
+		a.write();
 	}
 	
 	////////////////////////////////////////////////////

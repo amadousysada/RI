@@ -129,6 +129,9 @@ public class FileTools
 	 */
 	public static List<String> getFileNamesFromPostings(List<Posting> postings)
 	{	List<String> result = null;
+		
+		//TODO méthode à compléter  (TP2-ex6)
+	
 		File file = new File(FileTools.getCorpusFolder());
 		String[] paths = file.list();
 		Arrays.sort(paths);
@@ -138,7 +141,6 @@ public class FileTools
 			String filename = paths[index];
 			result.add(filename);
 		}
-		//TODO méthode à compléter  (TP2-ex6)
 		return result;
 	}
 	
@@ -201,6 +203,8 @@ public class FileTools
 		for (String string : filenames) {
 			System.out.println(string);
 		}
+		
+		
 		
 		// test de getPostingsFromFileNames
 		//TODO méthode à compléter  (TP4-ex1)
