@@ -295,6 +295,6 @@ public abstract class AbstractIndex implements Serializable
 		// test de read
 		//TODO méthode à compléter (TP2-ex11)
 		a= AbstractIndex.read();
-		a.print();
+		//a.print();
 	}
 }

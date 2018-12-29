@@ -46,8 +46,8 @@ public class ArrayIndex extends AbstractIndex
 	
 		//TODO méthode à compléter (TP1-ex13)
 		int i = Arrays.binarySearch(this.data, new IndexEntry(term));
-		
-		result = this.data[i];
+		if (i>0)
+			result = this.data[i];
 		
 		return result;
 	}
@@ -71,6 +71,15 @@ public class ArrayIndex extends AbstractIndex
 	{	return data;
 	}
 	
+	/**
+	 * 
+	 * @param entries
+	 * @return
+	 */
+	public void setEntries(IndexEntry[] entries) {
+		this.data=entries;
+		
+	}
 	////////////////////////////////////////////////////
 	//	AFFICHAGE
 	////////////////////////////////////////////////////
@@ -81,6 +90,10 @@ public class ArrayIndex extends AbstractIndex
 	public void print()
 	{	//TODO méthode à compléter (TP1-ex11)
 		for (IndexEntry indexEntry : data) {
+			if(indexEntry ==null){
+				continue;
+			}
+			
 			System.out.println(indexEntry.toString());
 		}
 	}

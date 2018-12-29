@@ -1,10 +1,17 @@
 import indexation.AbstractIndex;
 import indexation.AbstractIndex.LexiconType;
 import indexation.AbstractIndex.TokenListType;
+import indexation.content.Posting;
 
 import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
+import java.util.List;
+
+import query.AndOrQueryEngine;
+import query.AndQueryEngine;
 
 import tools.Configuration;
+import tools.FileTools;
 
 /**
  * Classe permettant de tester
@@ -26,17 +33,21 @@ public class Test1
 	{	// configuration de l'index
 		//TODO méthode à compléter (TP2-ex5)
 		Configuration.setCorpusName("wp_test");
+		
 		//TODO méthode à compléter (TP4-ex14)
 		//TODO méthode à compléter (TP5-ex10)
 		
 		// test de l'indexation
 		//TODO méthode à compléter (TP2-ex5) 
-		testIndexation();
+		//testIndexation();
+		
 		// test du chargement d'index
 		//TODO méthode à compléter (TP2-ex11)
+		//AbstractIndex index = AbstractIndex.read();
 		
 		// test du traitement de requêtes
 		//TODO méthode à compléter (TP3-ex6)
+		testQuery();
 		
 		// test de l'évaluation de performance
 		//TODO méthode à compléter (TP4-ex9)
@@ -73,8 +84,33 @@ public class Test1
 	 */
 	private static void testQuery() throws IOException, ClassNotFoundException
 	{	//TODO méthode à compléter (TP3-ex6)
-		//TODO méthode à compléter (TP3-ex12)
 		
+		Long start = System.currentTimeMillis();
+		System.out.println("Loading the index ...");
+		
+		AbstractIndex index = AbstractIndex.read();
+		
+		Long end = System.currentTimeMillis();
+		System.out.format("Index loaded, duration=%d ms%n%n",(end-start));
+		
+		String[] requetes={"recherche","recherche INFORMATION","recherche INFORMATION Web"};
+		AndQueryEngine aqe=new AndQueryEngine(index);
+		for(String query:requetes){
+			List<Posting> postings=aqe.processQuery(query);
+			System.out.println(postings);
+			List<String> files=FileTools.getFileNamesFromPostings(postings);
+			System.out.format("Files:%n %s%n%n",files);
+		}
+		//TODO méthode à compléter (TP3-ex12)
+		AndOrQueryEngine aqe1=new AndOrQueryEngine(index);
+		System.out.println("----------------------------------------------------");
+		String[] request ={"recherche,INFORMATION,Web,document,ordinateur","recherche INFORMATION Web document ordinateur","recherche INFORMATION Web,document ordinateur"};
+		for(String query:request){
+			List<Posting> postings=aqe1.processQuery(query);
+			System.out.println(postings);
+			List<String> files=FileTools.getFileNamesFromPostings(postings);
+			System.out.format("Files:%n %s%n%n",files);
+		}
 		//TODO méthode à compléter (TP5-ex11)
 		
 		//TODO méthode à compléter (TP6-ex13)

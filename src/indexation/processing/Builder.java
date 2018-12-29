@@ -155,18 +155,35 @@ public class Builder
 	private int buildPostings(List<Token> tokens, AbstractIndex index)
 	{	int result = 0;
 		//TODO méthode à compléter (TP2-ex2)
-		int i = 0;
-		for (Token token : tokens) {
-			IndexEntry ie = new IndexEntry(token.getType());
-			ie.addPosting(new Posting(token.getDocId()));
-			index.addEntry(ie, i);
-			i++;
+		
+		Iterator<Token> it =tokens.iterator();
+		
+		Token ref=it.next();
+		int size =0;
+		IndexEntry ie =new IndexEntry(ref.getType());
+		ie.addPosting(new Posting(ref.getDocId()));
+		while (it.hasNext()) {
+			Token token = it.next();
+			if(ref.getType().equals(token.getType())){
+				
+				ie.addPosting(new Posting(token.getDocId()));
+				result++;
+				continue;
+			}
+			
+			index.addEntry(ie, size);
+			size++;
+			ref=token;
+			ie =new IndexEntry(ref.getType());
+			ie.addPosting(new Posting(ref.getDocId()));
+			result++;
+			
 		}
 		
 		if (index instanceof ArrayIndex){
+		    ((ArrayIndex) index).setEntries(Arrays.copyOf(((ArrayIndex) index).getEntries(), size));
 			Arrays.sort(((ArrayIndex) index).getEntries());
 		}
-		result = i;
 		
 		return result;
 	}

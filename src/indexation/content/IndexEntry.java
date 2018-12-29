@@ -105,6 +105,8 @@ public class IndexEntry implements Serializable, Comparable<IndexEntry>
 		//TODO méthode à compléter (TP1-ex9)
 		result = this.term.compareTo(entry.term);
 		
+		
+		
 		return result;
 	}
 	
