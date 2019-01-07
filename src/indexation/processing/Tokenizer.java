@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -44,18 +45,16 @@ public class Tokenizer implements Serializable
 	public int tokenizeCorpus(List<Token> tokens) throws UnsupportedEncodingException
 	{	int result = 0;
 		//TODO méthode à compléter (TP1-ex5)
-	
 		String corpusPath = FileTools.getCorpusFolder();
 		File file = new File(corpusPath);
 		String[] paths = file.list();
 		Arrays.sort(paths);
-		if(tokens.isEmpty()) {
-			int docId = 0;
-			for (String string : paths) {
-				tokenizeDocument(new File(corpusPath+File.separator+string), docId, tokens);
-				//System.out.println(corpusPath+File.separator+string);
-				docId++;
-			}
+
+		int docId = 0;
+		for (String string : paths) {
+			tokenizeDocument(new File(corpusPath+File.separator+string), docId, tokens);
+			//System.out.println(corpusPath+File.separator+string);
+			docId++;
 		}
 		result=tokens.size();
 		
@@ -81,7 +80,6 @@ public class Tokenizer implements Serializable
 	 */
 	public void tokenizeDocument(File document, int docId, List<Token> tokens) throws UnsupportedEncodingException
 	{	//TODO méthode à compléter (TP1-ex4)
-		String regex = "[^\\pL\\pN]";
 		try {
 			FileInputStream fis = new FileInputStream(document);
 			InputStreamReader is = new  InputStreamReader(fis,"UTF-8");
@@ -90,9 +88,7 @@ public class Tokenizer implements Serializable
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				for (String string : tokenizeString(line)) {
-					if(!string.equals("")) {
-						tokens.add(new Token(string, docId));
-					}
+					tokens.add(new Token(string, docId));
 				}
 				
 			}
@@ -113,10 +109,17 @@ public class Tokenizer implements Serializable
 	 * 		La liste de types correspondant.
 	 */
 	public List<String> tokenizeString(String string)
-	{	List<String> result = null;
+	{	List<String> result = new LinkedList<String>();
 		//TODO méthode à compléter (TP1-ex3)
 		String regex = "[^\\pL\\pN]";
-		result = Arrays.asList(string.split(regex));
+		String[] strings = string.split(regex);
+		
+		for (String s : strings) {
+			if(!s.isEmpty()){
+				result.add(s);
+			}
+		}
+		
 		return result;
 	}
 	
@@ -156,8 +159,8 @@ public class Tokenizer implements Serializable
 		// test de tokenizeCorpus
 		// TODO méthode à compléter (TP1-ex5)
 		try {
-			Configuration.setCorpusName("wp_test");
-			List<Token> tokens2 = new ArrayList<Token>();
+			Configuration.setCorpusName("wp");
+			List<Token> tokens2 = new LinkedList<Token>();
 			System.out.print(t.tokenizeCorpus(tokens2));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

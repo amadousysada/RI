@@ -1,14 +1,28 @@
 package performance;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
+
+import tools.FileTools;
 
 import indexation.content.Posting;
 
@@ -33,6 +47,7 @@ public abstract class AbstractEvaluator
 	 */
 	public AbstractEvaluator() throws ParserConfigurationException, SAXException, IOException
 	{	//TODO méthode à compléter  (TP4-ex4)
+		groundTruth = new GroundTruth();
 	}
 	
 	/**
@@ -87,6 +102,38 @@ public abstract class AbstractEvaluator
 	protected Map<MeasureName,Float> evaluateQueryAnswer(int queryId, List<Posting> answer)
 	{	 Map<MeasureName,Float> result = null;
 		//TODO méthode à compléter  (TP4-ex5)
+		List<Posting> postingsTruth = groundTruth.getPostingList(queryId);
+		
+		int vp =0;
+		int fp=0;
+		int fn=0;
+		for(Posting post:answer){
+			if(postingsTruth.contains(post)){
+				vp++;
+			}
+			else{
+				fp++;
+			}
+		}
+		fn=(postingsTruth.size()-vp);
+		float precision = (float) 0;
+		float rappel = (float) 0;
+		float f_measure = (float) 0;
+		
+		
+		if(vp==0 && answer.size()==0) rappel =1;
+		else{
+			precision = (float) (vp)/(vp+fp);
+			rappel = (float) (vp)/(vp+fn);
+			if(precision>0 && rappel>0) f_measure = (2*precision*rappel)/(precision+rappel);
+		}
+		
+		
+		result = new HashMap<AbstractEvaluator.MeasureName, Float>();
+		result.put(MeasureName.PRECISION, precision);
+		result.put(MeasureName.RECALL, rappel);
+		result.put(MeasureName.F_MEASURE, f_measure);
+		
 		return result;
 	}
 	
@@ -105,6 +152,10 @@ public abstract class AbstractEvaluator
 	protected List<Map<MeasureName,Float>> evaluateQueryAnswers(List<List<Posting>> answers)
 	{	List<Map<MeasureName,Float>> result = null;
 		//TODO méthode à compléter  (TP4-ex6)
+		result = new ArrayList<Map<MeasureName,Float>>();
+		for(int i=0;i<answers.size();i++){
+			result.add(evaluateQueryAnswer(i, answers.get(i)));
+		}
 		return result;
 	}
 	
@@ -118,12 +169,27 @@ public abstract class AbstractEvaluator
 	 *  
 	 * @param values
 	 * 		Listes de maps de valeurs à traiter.
-	 * @throws FileNotFoundException 
-	 * 		Problème à l'ouverture du fichier de performances.
-	 * @throws UnsupportedEncodingException 
-	 * 		Problème à l'ouverture du fichier de performances.
+	 * @throws IOException 
 	 */
-	protected void writePerformances(List<Map<MeasureName,Float>> values) throws FileNotFoundException, UnsupportedEncodingException
+	protected void writePerformances(List<Map<MeasureName,Float>> values) throws IOException
 	{	//TODO méthode à compléter  (TP4-ex7)
+		File file = new File(FileTools.getPerformanceFile());
+		FileOutputStream fos =new FileOutputStream(file);
+		OutputStreamWriter out = new OutputStreamWriter(fos);
+		BufferedWriter bw =new BufferedWriter(out);
+		
+		for (Map<MeasureName,Float> map: values) {
+			bw.write(Float.toString(map.get(MeasureName.PRECISION)));
+			bw.write("\t\t");
+			bw.write(Float.toString(map.get(MeasureName.RECALL)));
+			bw.write("\t\t");
+			bw.write(Float.toString(map.get(MeasureName.F_MEASURE)));
+			bw.newLine();
+			
+		}
+		bw.flush();
+		bw.close();
+		
+		
 	}
 }

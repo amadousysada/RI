@@ -3,8 +3,14 @@ package query;
 import indexation.AbstractIndex;
 import indexation.content.IndexEntry;
 import indexation.content.Posting;
+import indexation.processing.Normalizer;
+import indexation.processing.Tokenizer;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Objet capable de traiter une
@@ -45,6 +51,17 @@ public class RankingQueryEngine
 	public List<DocScore> processQuery(String query, int k)
 	{	List<DocScore> result = null;
 		//TODO méthode à compléter (TP6-ex11)
+	
+		System.out.println("Processing query \""+query+"\"");
+		long start = System.currentTimeMillis();
+		{
+			List<IndexEntry> queryEntries = new LinkedList<IndexEntry>();
+			splitQuery(query, queryEntries);
+			result =new LinkedList<DocScore>();
+			sortDocuments(queryEntries, k, result);
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("Query processed, duration="+(end-start)+" ms");
 		return result;
 	}
 	
@@ -65,6 +82,19 @@ public class RankingQueryEngine
 	 */
 	private void splitQuery(String query, List<IndexEntry> result)
 	{	//TODO méthode à compléter (TP6-ex10)
+		Tokenizer tk=index.getTokenizer();
+		Normalizer nr=index.getNormalizer();
+		List<String> types = tk.tokenizeString(query);
+
+		for(String type: types){
+			String term = nr.normalizeType(type);
+			if(term!=null){
+				IndexEntry entry = index.getEntry(type);
+				if(entry !=null){
+					result.add(entry);
+				}
+			}
+		}	
 	}
 	
 	////////////////////////////////////////////////////
@@ -82,6 +112,11 @@ public class RankingQueryEngine
 	private float processWf(Posting posting)
 	{	float result = 0;
 		//TODO méthode à compléter (TP6-ex7)
+		int tf = posting.getFrequency();
+		
+		if(tf>0){
+			result = 1 + (float)Math.log10(tf);
+		}
 		return result;
 	}
 	
@@ -97,6 +132,10 @@ public class RankingQueryEngine
 	private float processIdf(IndexEntry entry)
 	{	float result = 0;
 		//TODO méthode à compléter (TP6-ex8)
+		float df = entry.getFrequency();
+		int docNbr = index.getSize();
+		result = (float) Math.log10(docNbr/df);
+		
 		return result;
 	}
 	
@@ -119,6 +158,67 @@ public class RankingQueryEngine
 	 */
 	private void sortDocuments(List<IndexEntry> queryEntries, int k, List<DocScore> docScores)
 	{	//TODO méthode à compléter (TP6-ex9)
+		
+		TreeSet<DocScore> orderedIds = new TreeSet<DocScore>();
+		int docNbr = index.getSize();
+		final float scores[] = new float[docNbr];
+		Arrays.fill(scores, 0);
+		float norms[] = new float[docNbr];
+		Arrays.fill(norms, 0);
+		float queryNorm = 0;
+		
+		// on parcourt tous les termes de la requête
+		for(IndexEntry entry: queryEntries)
+		{ 
+			float idf = processIdf(entry);
+			
+			// on calcule le poids individuel du terme pour la requête
+			float stq = idf;
+			
+			// on met à jour sa norme
+			queryNorm = queryNorm + (float)Math.pow(stq,2);
+			
+			// pour tous les postings contenant le terme traité
+			List<Posting> postings = entry.getPostings();
+			
+			for(Posting posting: postings)
+			{ 	// on calcule le score individuel du terme pour le document
+				float std = processWf(posting) * idf;
+				// on met à jour les scores et normes
+				int docId = posting.getDocId();
+				scores[docId] = scores[docId] + stq*std;
+				norms[docId] = norms[docId] + (float)Math.pow(std,2);
+			}
+		}
+		
+		// on termine le calcul des normes
+		for(int i=0;i<norms.length;i++)
+		norms[i] = (float)Math.sqrt(norms[i]);
+		queryNorm = (float)Math.sqrt(queryNorm);
+		
+		// on termine le calcul des scores et on ordonne les documents
+		for(int i=0;i<scores.length;i++)
+		{
+			if(norms[i]==0)
+				scores[i] = 0;
+			else
+				scores[i] = scores[i] / (norms[i]*queryNorm);
+			DocScore docScore = new DocScore(i, scores[i]);
+			orderedIds.add(docScore);
+		}
+		
+		// on garde tout si k vaut zéro
+		if(k==0)
+			k = orderedIds.size();
+		// on ajoute dans le bon ordre
+		Iterator<DocScore> it = orderedIds.descendingIterator();
+		int i = 0;
+		while(i<k && it.hasNext())
+		{
+			DocScore docScore = it.next();
+			docScores.add(docScore);
+			i++;
+		}
 	}
 	
 	////////////////////////////////////////////////////

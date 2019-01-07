@@ -3,17 +3,20 @@ package indexation.processing;
 import indexation.content.Token;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Scanner;
 import java.util.TreeSet;
 
 import tools.Configuration;
+import tools.FileTools;
 
 /**
  * Objet normalisant des tokens
@@ -55,8 +58,15 @@ public class Normalizer implements Serializable
 		while(listIterator.hasNext()) {
 			
 			Token token = listIterator.next();
-			token.setType(normalizeType(token.getType()));
-			listIterator.set(token);
+			String term = normalizeType(token.getType());
+			if(term == null){
+				listIterator.remove();
+			}
+			else {
+				token.setType(term);
+				listIterator.set(token);
+			}
+			
 		}
 	}
 	
@@ -75,8 +85,15 @@ public class Normalizer implements Serializable
 		//TODO méthode à compléter (TP1-ex6)
 		result = java.text.Normalizer.normalize(string.toLowerCase(), Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 		
+		if(result.isEmpty())
+			result = null;
+		
 		//TODO méthode à modifier  (TP4-ex14)
+		if(stemmer !=null && result!=null) stemmer.stemType(result);
+		
 		//TODO méthode à modifier  (TP5-ex8)
+		if(stopWords.contains(result) && result!=null) result =null;
+		
 		return result;
 	}
 
@@ -130,6 +147,21 @@ public class Normalizer implements Serializable
 	 */
 	private void loadStopWords() throws FileNotFoundException, UnsupportedEncodingException
 	{	//TODO méthode à compléter (TP5-ex7)
+		String filename = FileTools.getStopWordsFile();
+		if(filename !=null){
+			stopWords = new TreeSet<String>();
+			File file = new File(filename);
+			FileInputStream fis = new FileInputStream(file);
+			InputStreamReader isr = new InputStreamReader(fis);
+			Scanner scanner = new Scanner(isr);
+			while (scanner.hasNext()) {
+				String string = scanner.next();
+				stopWords.add(string);
+				
+			}
+			scanner.close();
+		}
+		
 	}
 	
 	////////////////////////////////////////////////////

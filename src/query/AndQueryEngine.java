@@ -63,15 +63,18 @@ public class AndQueryEngine
 		System.out.println("Processing query "+'"'+query+'"');
 		
 		splitQuery(query, list);
-		
+
+		if(list.size()==0){
+			result = new ArrayList<Posting>();
+		}
 		if(list.size() == 1){
 			result=list.get(0);
 		}
-		else result=processConjunctions(list);
+		if(list.size()>1) result=processConjunctions(list);
 		
 		Long end = System.currentTimeMillis();
 		
-		System.out.format("Query processed, returned %d postings, duration=%d ms%n", result.size(),(end-start));
+		System.out.format("Query processed, returned %d postings, duration=%d ms%n%n%n", result.size(),(end-start));
 		
 		return result;
 	}
@@ -110,26 +113,29 @@ public class AndQueryEngine
 	 */
 	private void splitQuery(String query, List<List<Posting>> result) throws ClassNotFoundException, IOException
 	{	//TODO méthode à compléter (TP3-ex1)
-		String req = "";
-		Tokenizer tk=new Tokenizer();
-		Normalizer nr=new Normalizer();
+		Tokenizer tk=index.getTokenizer();
+		Normalizer nr=index.getNormalizer();
 
-		for (String string:query.split("ET"))
-			req+=string;
-		
-		for(String string: tk.tokenizeString(req)){
-			String type = nr.normalizeType(string);
-			if(!type.equals("")){
-				IndexEntry entry = index.getEntry(type);
+		List<String> types = tk.tokenizeString(query);
+		System.out.print("Nomalizing: ");
+		for(String type: types){
+			String term = nr.normalizeType(type);
+			int size =0;
+			if(term!=null){
 				
+				IndexEntry entry = index.getEntry(type);
 				if(entry ==null){
-					result=new ArrayList<List<Posting>>();
-					break;
+					result.add(new ArrayList<Posting>());
 				}
-				result.add(entry.getPostings());
+				else{
+					result.add(entry.getPostings());
+					size = entry.getPostings().size();
+				}
 			}
-		}		
-		//TODO méthode à modifier  (TP4-ex10)
+			System.out.print("\""+term+"\"("+size+")   ");
+		}	
+		System.out.println();
+		
 	}
 	
 	////////////////////////////////////////////////////
@@ -169,6 +175,7 @@ public class AndQueryEngine
 		}
 		result = postListe;
 		//TODO méthode à modifier  (TP4-ex12)
+		System.out.println("\t Processing conjunction: ("+list1.size()+") AND ("+list2.size()+") >> ("+result.size()+")");
 		return result;
 	}
 
@@ -185,7 +192,13 @@ public class AndQueryEngine
 	{	List<Posting> result = null;
 		
 		//TODO méthode à compléter (TP3-ex4)
+		System.out.print("\t Ordering posting list: ");
+		
 		Collections.sort(lists,COMPARATOR);
+		for (List<Posting> postings : lists) {
+			System.out.print("("+postings.size()+") ");
+		}
+		System.out.print("\n");
 		Iterator<List<Posting>> it =lists.iterator();
 		result = processConjunction(it.next(), it.next());
 		

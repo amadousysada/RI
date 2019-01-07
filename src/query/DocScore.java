@@ -1,6 +1,7 @@
 package query;
 
 import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Classe représentant un couple (docId,score).
@@ -61,6 +62,11 @@ public class DocScore implements Comparable<DocScore>
 	public int compareTo(DocScore docScore)
 	{	int result = 0;
 		//TODO méthode à compléter (TP6-ex2)
+		result = (int)Math.signum(score-docScore.score);
+		if(result == 0){
+			result = docId-docScore.docId;
+		}
+				
 		return result;
 	}
 	
@@ -70,12 +76,17 @@ public class DocScore implements Comparable<DocScore>
 	/** Format utilisé lors de l'affichage du score, pour le limiter à 4 décimales */
 	private static NumberFormat NUMBER_FORMAT;
 	{	//TODO bloc statique à compléter (TP6-ex1)
+		NUMBER_FORMAT = NumberFormat.getIntegerInstance(Locale.ENGLISH);
+		NUMBER_FORMAT.setMaximumFractionDigits(4);
+		NUMBER_FORMAT.setMinimumFractionDigits(4);
 	}
 	
 	@Override
 	public String toString()
 	{	String result = null;
 		//TODO méthode à compléter (TP6-ex1)
+		result = docId+" ("+NUMBER_FORMAT.format(score)+")";
+		
 		return result;
 	}
 	

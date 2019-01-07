@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -38,28 +39,33 @@ public class Builder
 	 */
 	public AbstractIndex buildIndex(List<Token> tokens, LexiconType lexiconType)
 	{	AbstractIndex result = null;
+		int i =0;
 		Long start , end=null;
-		//TODO méthode à compléter (TP2-ex3)
+		List<Integer> frequencies = new ArrayList<Integer>();
 		
-		System.out.println("\tSorting tokens...");
-		start = System.currentTimeMillis();
-		Collections.sort(tokens);
-		end = System.currentTimeMillis();
-		System.out.println("\t"+tokens.size()+" tokens sorted, duration="+(end-start)+" ms\n\n");
+		{
+			System.out.println("\tSorting tokens...");
+			start = System.currentTimeMillis();
+			Collections.sort(tokens);
+			end = System.currentTimeMillis();
+			System.out.println("\t"+tokens.size()+" tokens sorted, duration="+(end-start)+" ms\n\n");
+		}
 		
-		System.out.println("\tFiltering tokens...");
-		start = System.currentTimeMillis();
-		int i = filterTokens(tokens);
-		end = System.currentTimeMillis();
-		System.out.println("\t"+tokens.size()+ " tokens remaining, corresponding to "+i +" terms, duration="+(end-start)+" ms\n\n");
+		{
+			System.out.println("\tFiltering tokens...");
+			start = System.currentTimeMillis();
+			i = filterTokens(tokens,frequencies);
+			end = System.currentTimeMillis();
+			System.out.println("\t"+tokens.size()+ " tokens remaining, corresponding to "+i +" terms, duration="+(end-start)+" ms\n\n");
+		}
 		
 		switch (lexiconType) {
 		case ARRAY:
-			result = new ArrayIndex(tokens.size());
+			result = new ArrayIndex(i);
 			break;
 		
 		case HASH:
-			result = new HashIndex(tokens.size());
+			result = new HashIndex(i);
 			break;
 			
 		case TREE:
@@ -70,12 +76,13 @@ public class Builder
 			break;
 		}
 		
-		System.out.println("\tBuilding posting lists...");
-		start = System.currentTimeMillis();
-		int j = buildPostings(tokens, result);
-		end = System.currentTimeMillis();
-		System.out.format("\t%d postings listed, lexicon type=%s, duration=%d ms%n%n",j,lexiconType.name(),(end-start));
-		
+		{
+			System.out.println("\tBuilding posting lists...");
+			start = System.currentTimeMillis();
+			int j = buildPostings(tokens, frequencies, result);
+			end = System.currentTimeMillis();
+			System.out.format("\t%d postings listed, lexicon type=%s, duration=%d ms%n%n",j,lexiconType.name(),(end-start));
+		}
 		return result;
 	}
 	
@@ -98,8 +105,8 @@ public class Builder
 		while (it.hasNext()) {
 			Token token =it.next();
 			if (previous == null) {
-				previous = token;
 				result++;
+				previous = token;
 				continue;
 			}
 			if(token.equals(previous)) {
@@ -137,6 +144,37 @@ public class Builder
 	private int filterTokens(List<Token> tokens, List<Integer> frequencies)
 	{	int result = 0;
 		//TODO méthode à compléter (TP6-ex4)
+		Iterator<Token> it =tokens.iterator();
+		Token previous = null;
+		int frequence =0;
+		while (it.hasNext()) {
+			Token token =it.next();
+			if (previous == null) {
+				result++;
+				frequence++;
+				previous = token;
+				continue;
+			}
+			if(token.equals(previous)) {
+				it.remove();
+				frequence++;
+				continue;
+			}
+			
+			frequencies.add(frequence);
+			frequence=1;
+			
+			if(!previous.getType().equals(token.getType())){
+				result++;
+				
+			}
+			previous = token;
+			
+			
+		}
+		
+		frequencies.add(frequence);
+		
 		return result;
 	}
 	
@@ -156,35 +194,23 @@ public class Builder
 	{	int result = 0;
 		//TODO méthode à compléter (TP2-ex2)
 		
+		int rank =0;
+		IndexEntry entry =null;
 		Iterator<Token> it =tokens.iterator();
-		
-		Token ref=it.next();
-		int size =0;
-		IndexEntry ie =new IndexEntry(ref.getType());
-		ie.addPosting(new Posting(ref.getDocId()));
 		while (it.hasNext()) {
 			Token token = it.next();
-			if(ref.getType().equals(token.getType())){
-				
-				ie.addPosting(new Posting(token.getDocId()));
-				result++;
-				continue;
+			
+			if(entry ==null || !entry.getTerm().equals(token.getType())){
+				entry = new IndexEntry(token.getType());
+				index.addEntry(entry, rank);
+				rank++;
 			}
-			
-			index.addEntry(ie, size);
-			size++;
-			ref=token;
-			ie =new IndexEntry(ref.getType());
-			ie.addPosting(new Posting(ref.getDocId()));
+			Long start = System.currentTimeMillis();
+			entry.addPosting(new Posting(token.getDocId()));
+			Long end = System.currentTimeMillis();
+			System.out.println("\t\t\t"+(end-start));
 			result++;
-			
 		}
-		
-		if (index instanceof ArrayIndex){
-		    ((ArrayIndex) index).setEntries(Arrays.copyOf(((ArrayIndex) index).getEntries(), size));
-			Arrays.sort(((ArrayIndex) index).getEntries());
-		}
-		
 		return result;
 	}
 	
@@ -209,6 +235,26 @@ public class Builder
 	private int buildPostings(List<Token> tokens, List<Integer> frequencies, AbstractIndex index)
 	{	int result = 0;
 		//TODO méthode à compléter (TP6-ex5)
+		int rank =0;
+		IndexEntry entry =null;
+		
+		Iterator<Token> it =tokens.iterator();
+		
+		while (it.hasNext()) {
+			Token token = it.next();
+			
+			if(entry ==null || !entry.getTerm().equals(token.getType())){
+				entry = new IndexEntry(token.getType());
+				index.addEntry(entry, rank);
+				rank++;
+			}
+			Long start = System.currentTimeMillis();
+			entry.addPosting(new Posting(token.getDocId(),frequencies.get(result)));
+			Long end = System.currentTimeMillis();
+			System.out.println("\t\t\t"+(end-start));
+			result++;
+			
+		}
 		return result;
 	}
 	
@@ -243,7 +289,7 @@ public class Builder
 		
 		// test de filterTokens
 		//TODO méthode à compléter (TP2-ex1)
-		tokens.sort(null);
+		Collections.sort(tokens);
 		System.out.println("==========  test de filterTokens  ============\n");
 		int i = bui.filterTokens(tokens);
 		System.out.format("Nombre de Termes: %d%n",i);
@@ -258,15 +304,19 @@ public class Builder
 		// test de buildIndex
 		//TODO méthode à compléter (TP2-ex3)
 		System.out.println("==============  test de buildIndex  ================\n");
-		Configuration.setCorpusName("wp_test");
-		List<Token> tokensListe = new ArrayList<Token>();
+		Configuration.setCorpusName("wp");
+		List<Token> tokensListe = new LinkedList<Token>();
 		Tokenizer t =new Tokenizer();
 		t.tokenizeCorpus(tokensListe);
-		bui.buildIndex(tokensListe, LexiconType.HASH);
-		
+		bui.buildIndex(tokensListe, LexiconType.ARRAY);
 		
 		// test de filterTokens
 		//TODO méthode à compléter (TP6-ex4)
+		List<Integer> frequencies = new ArrayList<Integer>();
+		
+		i = bui.filterTokens(new ArrayList<Token>(Arrays.asList(new Token("type1", 3),new Token("type1", 3),new Token("type1", 5),new Token("type1", 5),new Token("type2", 5),new Token("type2", 5),new Token("type3", 1))),frequencies);
+		System.out.format("Nombre de Termes: %d%n",i);
+		System.out.println(frequencies);
 		
 		// test de buildPostings
 		//TODO méthode à compléter (TP6-ex5)

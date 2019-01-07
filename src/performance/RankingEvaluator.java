@@ -1,8 +1,13 @@
 package performance;
 
+import indexation.AbstractIndex;
+import indexation.content.Posting;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +62,27 @@ public class RankingEvaluator extends AbstractEvaluator
 	private List<Map<MeasureName,Float>> evaluateQueryAnswers(List<List<DocScore>> answers, int k)
 	{	List<Map<MeasureName,Float>> result = null;
 		//TODO méthode à compléter  (TP6-ex14)
+		List<List<Posting>> convAnswers = new ArrayList<List<Posting>>();
+
+		for(List<DocScore> answer: answers)
+		{
+			List<Posting> convAnswer = new ArrayList<Posting>();
+			convAnswers.add(convAnswer);
+			Iterator<DocScore> it = answer.iterator();
+			int i = 0;
+
+			while(it.hasNext() && i<k)
+			{
+				DocScore docScore = it.next();
+				int docId = docScore.getDocId();
+				Posting posting = new Posting(docId);
+				convAnswer.add(posting);
+				i++;
+			}
+		}
+
+		result = evaluateQueryAnswers(convAnswers);
+		
 		return result;
 	}
 
@@ -74,15 +100,32 @@ public class RankingEvaluator extends AbstractEvaluator
 	 * 		Liste de maps contenant les performances calculées pour les requêtes. Chaque
 	 * 		map correspond à des valeurs moyennes pour une valeur de k donnée. Ces moyennes
 	 * 		sont obtenues en considérant toutes les requêtes d'évaluation.
-	 * 
-	 * @throws UnsupportedEncodingException
-	 * 		Problème à l'enregistrement des performances. 
-	 * @throws FileNotFoundException 
-	 * 		Problème à l'enregistrement des performances. 
+	 * @throws IOException 
 	 */
-	public List<Map<MeasureName,Float>> evaluateEngine(RankingQueryEngine engine) throws FileNotFoundException, UnsupportedEncodingException
+	public List<Map<MeasureName,Float>> evaluateEngine(RankingQueryEngine engine) throws IOException
 	{	List<Map<MeasureName,Float>> result = null;
 		//TODO méthode à compléter  (TP6-ex15)
+		System.out.println("Evaluating the search engine");
+		AbstractIndex index = engine.getIndex();
+		int docNbr = index.getDocumentNumber();
+		// on traite chaque requête d'évaluation
+		List<List<DocScore>> answers = new ArrayList<List<DocScore>>();
+		List<String> queries = groundTruth.getQueries();
+		for(String query: queries)
+		{
+			List<DocScore> answer = engine.processQuery(query,0);
+			answers.add(answer);
+		}
+		// on calcule les performances correspondant aux réponses
+		result = new ArrayList<Map<MeasureName,Float>>();
+		for(int k=1;k<=docNbr;k++)
+		{
+			System.out.println("k="+k);
+			List<Map<MeasureName,Float>> temp = evaluateQueryAnswers(answers,k);
+			Map<MeasureName,Float> meanVals = temp.get(temp.size()-1);
+			result.add(meanVals);
+		}
+		writePerformances(result);
 		return result;
 	}
 	

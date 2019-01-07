@@ -1,6 +1,10 @@
 import indexation.ArrayIndex;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 
 public class Tester {
@@ -10,13 +14,18 @@ public class Tester {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String[] s =new String[10];
-		String[] sp="web ET rds".split("ET");
-		System.out.println(Arrays.toString(sp));
-		s[0]="uji";
-		s[1]="po78";
-		s=Arrays.copyOf(s, 2);
-		Arrays.sort(s);
+		List<String> l = new ArrayList<String>(Arrays.asList("hi","samba","Marie","","Ola"));
+		System.out.println(l);
+		ListIterator<String> it = l.listIterator();
+		while(it.hasNext()){
+			String s = it.next();
+			if(s.isEmpty()){
+				it.set("ca marche");
+			}
+		}
+		
+		System.out.println(l);
+		
 
 	}
 

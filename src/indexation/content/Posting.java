@@ -94,10 +94,11 @@ public class Posting implements Serializable, Comparable<Posting>
 	////////////////////////////////////////////////////
 	@Override
 	public String toString()
-	{	String result = null;
-		//TODO méthode à compléter (TP1-ex8)
-		//TODO méthode à modifier  (TP6-ex3)
-		result = Integer.toString(this.docId);
+	{	
+		String result = null;
+
+		result = String.format("<%d [%d]>", docId,frequency);
+		
 		return result;
 	}
 	
@@ -123,13 +124,8 @@ public class Posting implements Serializable, Comparable<Posting>
 	 * 		Problème quelconque rencontré.
 	 */
 	public static void main(String[] args) throws Exception 
-	{	// test de compareTo
-		// TODO méthode à compléter (TP1-ex8)
-		
-		// test de equals
-		// TODO méthode à compléter (TP1-ex8)
-
-		// test de toString
-		// TODO méthode à compléter (TP1-ex8)
+	{	
+		Posting p =new Posting(16, 99);
+		System.out.print(p.toString());
 	}
 }

@@ -234,6 +234,8 @@ public abstract class AbstractIndex implements Serializable
 		ObjectInputStream ois = new ObjectInputStream(fis);
 		
 		result = (AbstractIndex) ois.readObject();
+		result.normalizer = new Normalizer();
+		result.tokenizer = new Tokenizer();
 		ois.close();
 		return result;
 	}

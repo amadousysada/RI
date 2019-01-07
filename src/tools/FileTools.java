@@ -11,6 +11,7 @@ import indexation.processing.Tokenizer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import query.DocScore;
@@ -154,8 +155,16 @@ public class FileTools
 	 * 		Liste de noms de fichiers.
 	 */
 	public static List<String> getFileNamesFromDocScores(List<DocScore> docScores)
-	{	List<String> result = null;
+	{	List<String> result = new LinkedList<String>();
 		//TODO méthode à compléter  (TP6-ex12)
+		File file = new File(FileTools.getCorpusFolder());
+		String[] paths = file.list();
+		Arrays.sort(paths);
+		for (DocScore docScore : docScores) {
+			int index =docScore.getDocId();
+			String filename = paths[index];
+			result.add(filename);
+		}
 		return result;
 	}
 	
@@ -171,6 +180,14 @@ public class FileTools
 	public static List<Posting> getPostingsFromFileNames(List<String> fileNames)
 	{	List<Posting> result = null;
 		//TODO méthode à compléter  (TP4-ex1)
+		File file = new File(FileTools.getCorpusFolder());
+		String[] paths = file.list();
+		Arrays.sort(paths);
+		result =new ArrayList<Posting>();
+		for (String string : fileNames) {
+			int docId  = Arrays.asList(paths).indexOf(string);
+			result.add(new Posting(docId));
+		}
 		return result;
 	}
 
@@ -203,12 +220,17 @@ public class FileTools
 		for (String string : filenames) {
 			System.out.println(string);
 		}
+		System.out.println("\n\n");
 		
 		
 		
 		// test de getPostingsFromFileNames
 		//TODO méthode à compléter  (TP4-ex1)
-		
+		List<String> fileNames = new ArrayList<String>(
+				Arrays.asList("c070aeda-4fd1-494d-99d0-250d24bca7e7.txt", "c11bb2d4-a507-4ea8-a140-774fcc3e37c8.txt", "c12b4c72-5015-42da-95a9-51779723a81d.txt"));
+		postings = FileTools.getPostingsFromFileNames(fileNames);
+		System.out.println(postings);
+		System.out.println("\n\n");
 		// test de getFileNamesFromDocScores
 		//TODO méthode à compléter  (TP6-ex12)
 	}

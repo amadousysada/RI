@@ -71,15 +71,8 @@ public class ArrayIndex extends AbstractIndex
 	{	return data;
 	}
 	
-	/**
-	 * 
-	 * @param entries
-	 * @return
-	 */
-	public void setEntries(IndexEntry[] entries) {
-		this.data=entries;
-		
-	}
+	
+	
 	////////////////////////////////////////////////////
 	//	AFFICHAGE
 	////////////////////////////////////////////////////
